@@ -106,6 +106,52 @@ router.get('/', async (req, res) => {
   }
 });
 
+// POST /api/skills - Create a new skill
+router.post('/', async (req, res) => {
+  try {
+    const skillData = req.body;
+
+    // Validate required fields
+    const requiredFields = ['title', 'description', 'category', 'skillType', 'instructorName', 'contactEmail'];
+    const missingFields = requiredFields.filter(field => !skillData[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields',
+        missingFields
+      });
+    }
+
+    // Create new skill
+    const skill = new Skill(skillData);
+    const savedSkill = await skill.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Skill created successfully',
+      data: savedSkill
+    });
+  } catch (error) {
+    console.error('Error creating skill:', error);
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error creating skill',
+      error: error.message
+    });
+  }
+});
+
 // GET /api/skills/:id - Get single skill by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -135,6 +181,100 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching skill',
+      error: error.message
+    });
+  }
+});
+
+// PUT /api/skills/:id - Update a skill
+router.put('/:id', async (req, res) => {
+  try {
+    const skill = await Skill.findById(req.params.id);
+
+    if (!skill) {
+      return res.status(404).json({
+        success: false,
+        message: 'Skill not found'
+      });
+    }
+
+    // Update skill fields
+    Object.keys(req.body).forEach(key => {
+      if (req.body[key] !== undefined) {
+        skill[key] = req.body[key];
+      }
+    });
+
+    const updatedSkill = await skill.save();
+
+    res.json({
+      success: true,
+      message: 'Skill updated successfully',
+      data: updatedSkill
+    });
+  } catch (error) {
+    console.error('Error updating skill:', error);
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid skill ID format'
+      });
+    }
+
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error updating skill',
+      error: error.message
+    });
+  }
+});
+
+// DELETE /api/skills/:id - Delete a skill
+router.delete('/:id', async (req, res) => {
+  try {
+    const skill = await Skill.findById(req.params.id);
+
+    if (!skill) {
+      return res.status(404).json({
+        success: false,
+        message: 'Skill not found'
+      });
+    }
+
+    // Delete associated reviews (they will be handled by the Review model's middleware)
+    const Review = require('../models/Review');
+    await Review.deleteMany({ skillId: req.params.id });
+
+    // Delete the skill
+    await Skill.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: 'Skill deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting skill:', error);
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid skill ID format'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting skill',
       error: error.message
     });
   }

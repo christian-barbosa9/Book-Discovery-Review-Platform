@@ -41,7 +41,9 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 const skillsRoutes = require('./routes/skills');
+const reviewsRoutes = require('./routes/reviews');
 app.use('/api/skills', skillsRoutes);
+app.use('/api/reviews', reviewsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
