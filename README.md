@@ -1,6 +1,6 @@
 # Community Skill Exchange Platform
 
-A full-stack web application that connects people through knowledge sharing and skill development. Users can offer skills they want to teach, seek skills they want to learn, and review experiences with other community members. Built with React, Express.js, and MongoDB.
+A full-stack web application that connects people through knowledge sharing and skill development. Users can offer skills they want to teach, seek skills they want to learn, and review experiences with other community members. Built with React, Express.js, and PostgreSQL.
 
 ## 🎯 Features
 
@@ -23,8 +23,8 @@ A full-stack web application that connects people through knowledge sharing and 
 ### Backend
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
+- **PostgreSQL** - Relational database
+- **pg** - PostgreSQL client for Node.js
 
 ### Deployment
 - **Vercel** - Platform for deployment (recommended)
@@ -34,7 +34,7 @@ A full-stack web application that connects people through knowledge sharing and 
 Before you begin, ensure you have the following installed:
 - Node.js (v14 or higher)
 - npm or yarn
-- MongoDB (local installation or MongoDB Atlas account)
+- PostgreSQL (local installation or cloud database like Supabase, Railway, or Neon)
 
 ## 🚀 Installation & Setup
 
@@ -71,13 +71,15 @@ Create a `.env` file in the root directory:
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/skill-exchange
+POSTGRES_URI=postgresql://username:password@localhost:5432/skill-exchange
 ```
 
-For MongoDB Atlas (cloud database), use:
+For cloud PostgreSQL (Supabase, Railway, Neon, etc.), use:
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/skill-exchange
+DATABASE_URL=postgresql://username:password@host:5432/database
 ```
+
+Or set `POSTGRES_URI` with your cloud database connection string.
 
 ### 4. Start the Application
 
@@ -127,9 +129,7 @@ Final project/
 │   │   └── index.js
 │   └── package.json
 ├── server/                # Express backend
-│   ├── models/           # MongoDB models
-│   │   ├── Skill.js
-│   │   └── Review.js
+│   ├── db.js            # PostgreSQL connection and schema
 │   ├── routes/           # API routes
 │   │   ├── skills.js
 │   │   └── reviews.js
@@ -256,37 +256,41 @@ GET /api/health
 
 ## 🗄️ Database Schema
 
-### Skill Model
-```javascript
-{
-  title: String (required, max 100 chars),
-  description: String (required, max 1000 chars),
-  category: String (required, enum: Technology, Arts & Crafts, Music, etc.),
-  skillType: String (required, enum: Offering/Seeking),
-  instructorName: String (required, max 50 chars),
-  contactEmail: String (required, valid email),
-  location: String (optional, max 100 chars),
-  price: Number (min 0, default 0),
-  isFree: Boolean (default false),
-  duration: String (optional, max 50 chars),
-  skillLevel: String (enum: Beginner/Intermediate/Advanced/Any, default Any),
-  averageRating: Number (0-5, auto-calculated),
-  reviewCount: Number (auto-calculated),
-  createdAt: Date,
-  updatedAt: Date
-}
+### Skills Table
+```sql
+CREATE TABLE skills (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(100) NOT NULL,
+  description TEXT NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  skill_type VARCHAR(20) NOT NULL CHECK (skill_type IN ('Offering', 'Seeking')),
+  instructor_name VARCHAR(50) NOT NULL,
+  contact_email VARCHAR(100) NOT NULL,
+  location VARCHAR(100),
+  price DECIMAL(10, 2) DEFAULT 0 CHECK (price >= 0),
+  is_free BOOLEAN DEFAULT false,
+  duration VARCHAR(50),
+  skill_level VARCHAR(20) DEFAULT 'Any' CHECK (skill_level IN ('Beginner', 'Intermediate', 'Advanced', 'Any')),
+  average_rating DECIMAL(3, 1) DEFAULT 0 CHECK (average_rating >= 0 AND average_rating <= 5),
+  review_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
-### Review Model
-```javascript
-{
-  skillId: ObjectId (required, ref: Skill),
-  reviewerName: String (required, max 50 chars),
-  rating: Number (required, min 1, max 5),
-  comment: String (required, max 500 chars),
-  createdAt: Date
-}
+### Reviews Table
+```sql
+CREATE TABLE reviews (
+  id SERIAL PRIMARY KEY,
+  skill_id INTEGER NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+  reviewer_name VARCHAR(50) NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
+
+The database schema is automatically created when the server starts. Tables are created if they don't exist.
 
 ## 🌐 Deployment
 
@@ -300,18 +304,18 @@ GET /api/health
    - Install Vercel CLI: `npm i -g vercel`
    - In the root directory, run: `vercel`
    - Add environment variables in Vercel dashboard:
-     - `MONGODB_URI`: Your MongoDB connection string
+     - `DATABASE_URL` or `POSTGRES_URI`: Your PostgreSQL connection string
      - `PORT`: 5000 (or let Vercel assign)
 
 3. **Deploy frontend:**
    - The React app can be deployed separately or as part of the same project
    - Update `REACT_APP_API_URL` in client to point to your deployed backend
 
-4. **MongoDB Atlas Setup:**
-   - Create a free MongoDB Atlas account
-   - Create a cluster and database
+4. **PostgreSQL Setup:**
+   - For local: Install PostgreSQL and create a database
+   - For cloud: Use Supabase (free), Railway, Neon, or similar
    - Get your connection string
-   - Add it to Vercel environment variables as `MONGODB_URI`
+   - Add it to Vercel environment variables as `DATABASE_URL` or `POSTGRES_URI`
 
 ### Alternative Deployment Options
 
@@ -363,7 +367,7 @@ This project includes 10 meaningful commits that demonstrate:
 This project demonstrates:
 - Full-stack development with React and Express
 - RESTful API design and implementation
-- Database integration with MongoDB and Mongoose
+- Database integration with PostgreSQL
 - Client-server communication with proper error handling
 - Form handling and validation (client and server-side)
 - Search and filtering functionality
