@@ -34,10 +34,14 @@ mongoose.connection.on('error', (err) => {
   console.error('❌ MongoDB error:', err);
 });
 
-// Basic route
+// Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date().toISOString() });
 });
+
+// API Routes
+const skillsRoutes = require('./routes/skills');
+app.use('/api/skills', skillsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
