@@ -4,8 +4,275 @@
   margin: 0 auto;
 }
 
-.skill-detail h1 {
+.back-button {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.back-button:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+.skill-detail-header {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.skill-title-section h1 {
+  margin: 0 0 1rem 0;
   color: #2c3e50;
+  font-size: 2.5rem;
+}
+
+.skill-meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.skill-type-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.skill-type-badge.offering {
+  background-color: #3498db;
+  color: white;
+}
+
+.skill-type-badge.seeking {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.skill-category {
+  color: #7f8c8d;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.skill-rating-section {
+  text-align: right;
+}
+
+.skill-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.stars-large {
+  display: flex;
+  gap: 4px;
+}
+
+.stars-large .star {
+  color: #ddd;
+  font-size: 1.5rem;
+}
+
+.stars-large .star.filled {
+  color: #f39c12;
+}
+
+.stars-large .star.half {
+  color: #f39c12;
+  opacity: 0.5;
+}
+
+.rating-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.rating-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.rating-count {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.skill-detail-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.skill-section {
+  margin-bottom: 2rem;
+}
+
+.skill-section h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.skill-description {
+  color: #555;
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+
+.skill-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.detail-value a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.detail-value a:hover {
+  text-decoration: underline;
+}
+
+.detail-value.price {
+  font-weight: bold;
+  color: #27ae60;
+  font-size: 1.2rem;
+}
+
+.reviews-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reviews-section h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.reviews-list {
+  margin-top: 2rem;
+}
+
+.no-reviews {
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8d;
+}
+
+.loading-container,
+.error-container {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #e74c3c;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.retry-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.retry-btn:hover {
+  background-color: #2980b9;
+}
+
+@media (max-width: 768px) {
+  .skill-detail-header {
+    flex-direction: column;
+  }
+
+  .skill-rating-section {
+    text-align: left;
+    align-self: flex-start;
+  }
+
+  .skill-rating {
+    align-items: flex-start;
+  }
+
+  .rating-info {
+    align-items: flex-start;
+  }
+
+  .skill-details-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
