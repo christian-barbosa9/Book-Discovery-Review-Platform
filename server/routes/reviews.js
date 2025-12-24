@@ -1,16 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { pool, updateSkillRating } = require('../db');
-
-// Helper function to map database row to API response format
-const mapReviewRow = (row) => ({
-  _id: row.id.toString(),
-  skillId: row.skill_id.toString(),
-  reviewerName: row.reviewer_name,
-  rating: row.rating,
-  comment: row.comment,
-  createdAt: row.created_at
-});
+const Review = require('../models/Review');
+const Skill = require('../models/Skill');
 
 // POST /api/reviews - Create a new review
 router.post('/', async (req, res) => {
@@ -25,17 +16,9 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const skillIdNum = parseInt(skillId);
-    if (isNaN(skillIdNum)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid skill ID format'
-      });
-    }
-
     // Check if skill exists
-    const skillCheck = await pool.query('SELECT id FROM skills WHERE id = $1', [skillIdNum]);
-    if (skillCheck.rows.length === 0) {
+    const skill = await Skill.findById(skillId);
+    if (!skill) {
       return res.status(404).json({
         success: false,
         message: 'Skill not found'
@@ -43,8 +26,7 @@ router.post('/', async (req, res) => {
     }
 
     // Validate rating range
-    const ratingNum = parseInt(rating);
-    if (ratingNum < 1 || ratingNum > 5) {
+    if (rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
         message: 'Rating must be between 1 and 5'
@@ -52,36 +34,47 @@ router.post('/', async (req, res) => {
     }
 
     // Create new review
-    const query = `
-      INSERT INTO reviews (skill_id, reviewer_name, rating, comment)
-      VALUES ($1, $2, $3, $4)
-      RETURNING *
-    `;
+    const review = new Review({
+      skillId,
+      reviewerName,
+      rating,
+      comment
+    });
 
-    const values = [
-      skillIdNum,
-      reviewerName.substring(0, 50),
-      ratingNum,
-      comment.substring(0, 500)
-    ];
+    const savedReview = await review.save();
 
-    const result = await pool.query(query, values);
-    const review = mapReviewRow(result.rows[0]);
-
-    // Update skill rating
-    const updatedSkill = await updateSkillRating(skillIdNum);
+    // The review model's middleware will automatically update the skill's rating
+    // But we need to fetch the updated skill to return it
+    const updatedSkill = await Skill.findById(skillId);
 
     res.status(201).json({
       success: true,
       message: 'Review created successfully',
-      data: review,
+      data: savedReview,
       skill: {
-        averageRating: parseFloat(updatedSkill.average_rating) || 0,
-        reviewCount: updatedSkill.review_count || 0
+        averageRating: updatedSkill.averageRating,
+        reviewCount: updatedSkill.reviewCount
       }
     });
   } catch (error) {
     console.error('Error creating review:', error);
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors
+      });
+    }
+
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid skill ID format'
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error creating review',
@@ -93,51 +86,41 @@ router.post('/', async (req, res) => {
 // GET /api/reviews/skill/:skillId - Get all reviews for a specific skill
 router.get('/skill/:skillId', async (req, res) => {
   try {
-    const skillId = parseInt(req.params.skillId);
-    
-    if (isNaN(skillId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid skill ID format'
-      });
-    }
+    const { skillId } = req.params;
+    const { sortBy = 'newest', limit = 50 } = req.query;
 
     // Check if skill exists
-    const skillCheck = await pool.query('SELECT id FROM skills WHERE id = $1', [skillId]);
-    if (skillCheck.rows.length === 0) {
+    const skill = await Skill.findById(skillId);
+    if (!skill) {
       return res.status(404).json({
         success: false,
         message: 'Skill not found'
       });
     }
 
-    const { sortBy = 'newest', limit = 50 } = req.query;
-
-    // Build ORDER BY clause
-    let orderBy = 'created_at DESC';
+    // Build sort object
+    let sort = {};
     switch (sortBy) {
+      case 'newest':
+        sort = { createdAt: -1 };
+        break;
       case 'oldest':
-        orderBy = 'created_at ASC';
+        sort = { createdAt: 1 };
         break;
       case 'rating-high':
-        orderBy = 'rating DESC, created_at DESC';
+        sort = { rating: -1, createdAt: -1 };
         break;
       case 'rating-low':
-        orderBy = 'rating ASC, created_at DESC';
+        sort = { rating: 1, createdAt: -1 };
         break;
       default:
-        orderBy = 'created_at DESC';
+        sort = { createdAt: -1 };
     }
 
-    const query = `
-      SELECT * FROM reviews
-      WHERE skill_id = $1
-      ORDER BY ${orderBy}
-      LIMIT $2
-    `;
-
-    const result = await pool.query(query, [skillId, parseInt(limit)]);
-    const reviews = result.rows.map(mapReviewRow);
+    const reviews = await Review.find({ skillId })
+      .sort(sort)
+      .limit(parseInt(limit))
+      .select('-__v');
 
     res.json({
       success: true,
@@ -146,6 +129,14 @@ router.get('/skill/:skillId', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching reviews:', error);
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid skill ID format'
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error fetching reviews',
@@ -157,43 +148,41 @@ router.get('/skill/:skillId', async (req, res) => {
 // DELETE /api/reviews/:id - Delete a review
 router.delete('/:id', async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    
-    if (isNaN(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid review ID format'
-      });
-    }
+    const review = await Review.findById(req.params.id);
 
-    // Get review to find skill_id before deleting
-    const reviewResult = await pool.query('SELECT skill_id FROM reviews WHERE id = $1', [id]);
-    
-    if (reviewResult.rows.length === 0) {
+    if (!review) {
       return res.status(404).json({
         success: false,
         message: 'Review not found'
       });
     }
 
-    const skillId = reviewResult.rows[0].skill_id;
+    const skillId = review.skillId;
 
-    // Delete the review
-    await pool.query('DELETE FROM reviews WHERE id = $1', [id]);
+    // Delete the review (middleware will update skill ratings)
+    await Review.findByIdAndDelete(req.params.id);
 
-    // Update skill rating
-    const updatedSkill = await updateSkillRating(skillId);
+    // Fetch updated skill to return new stats
+    const updatedSkill = await Skill.findById(skillId);
 
     res.json({
       success: true,
       message: 'Review deleted successfully',
       skill: {
-        averageRating: parseFloat(updatedSkill.average_rating) || 0,
-        reviewCount: updatedSkill.review_count || 0
+        averageRating: updatedSkill.averageRating,
+        reviewCount: updatedSkill.reviewCount
       }
     });
   } catch (error) {
     console.error('Error deleting review:', error);
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid review ID format'
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error deleting review',
