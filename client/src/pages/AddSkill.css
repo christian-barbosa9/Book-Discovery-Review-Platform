@@ -1,0 +1,11 @@
+.add-skill {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.add-skill h1 {
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+

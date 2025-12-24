@@ -1,0 +1,11 @@
+.skill-detail {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.skill-detail h1 {
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
