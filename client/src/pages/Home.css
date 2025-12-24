@@ -1,43 +1,129 @@
 .home {
   min-height: calc(100vh - 200px);
-  padding: 2rem;
 }
 
 .home-hero {
   text-align: center;
-  padding: 3rem 0;
+  padding: 4rem 2rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-radius: 10px;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .home-title {
-  font-size: 3rem;
+  font-size: 3.5rem;
   margin-bottom: 1rem;
   font-weight: bold;
 }
 
 .home-subtitle {
-  font-size: 1.25rem;
-  opacity: 0.9;
+  font-size: 1.5rem;
+  opacity: 0.95;
+  margin-bottom: 2rem;
+}
+
+.home-cta {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-button {
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: inline-block;
+}
+
+.cta-button.primary {
+  background-color: white;
+  color: #667eea;
+}
+
+.cta-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button.secondary {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.cta-button.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
 }
 
 .home-content {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem;
+}
+
+.home-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-  font-size: 1.1rem;
-  color: #555;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.feature-card p {
+  color: #7f8c8d;
+  line-height: 1.6;
 }
 
 @media (max-width: 768px) {
   .home-title {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .home-subtitle {
-    font-size: 1rem;
+    font-size: 1.2rem;
+  }
+
+  .home-cta {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cta-button {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .home-features {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -20,6 +20,7 @@ function App() {
             <Route path="/add-skill" element={<AddSkill />} />
             <Route path="/skill/:id" element={<SkillDetail />} />
             <Route path="/stats" element={<Stats />} />
+            <Route path="*" element={<div style={{ padding: '2rem', textAlign: 'center' }}><h1>404 - Page Not Found</h1></div>} />
           </Routes>
         </main>
       </div>

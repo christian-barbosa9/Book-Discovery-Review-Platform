@@ -1,0 +1,146 @@
+.skill-card {
+  display: block;
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.skill-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  color: inherit;
+}
+
+.skill-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.skill-card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin: 0;
+  flex: 1;
+}
+
+.skill-type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: 1rem;
+}
+
+.skill-type-badge.offering {
+  background-color: #3498db;
+  color: white;
+}
+
+.skill-type-badge.seeking {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.skill-card-category {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  font-weight: 500;
+}
+
+.skill-card-description {
+  color: #555;
+  line-height: 1.6;
+  margin: 1rem 0;
+  min-height: 3.2em;
+}
+
+.skill-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.skill-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  color: #ddd;
+  font-size: 1rem;
+}
+
+.star.filled {
+  color: #f39c12;
+}
+
+.star.half {
+  color: #f39c12;
+  opacity: 0.5;
+}
+
+.rating-text {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.skill-card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.skill-instructor {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.skill-price {
+  font-weight: bold;
+  color: #27ae60;
+  font-size: 1rem;
+}
+
+.skill-price.free {
+  color: #27ae60;
+}
+
+@media (max-width: 768px) {
+  .skill-card-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .skill-type-badge {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+
+  .skill-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
